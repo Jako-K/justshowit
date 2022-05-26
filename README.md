@@ -1,4 +1,9 @@
 # Install
+
+`pip install justshowit`
+
+or 
+
 `pip install git+https://github.com/Jako-K/justshowit`
 
 # How to use
@@ -53,7 +58,7 @@ show([image_bgr, path1], resize_factor=0.5)
 
 
 ```python
-# An appropriate number of rows and columns will automatically be chosen
+# An appropriate number of rows and columns will be chosen automatically
 show([image_bgr for i in range(27)], BGR2RGB=True)
 ```
 
@@ -61,23 +66,17 @@ show([image_bgr for i in range(27)], BGR2RGB=True)
 
 
 ```python
-# You can also show a bunch of differently shaped images together
+# You can also display a bunch of differently shaped images
 show([url, torch_image, numpy_image, path1, path2, path3], resize_factor=0.5)
 ```
 
 ![](https://github.com/Jako-K/justshowit/blob/main/readme_stuff/5.png?raw=True)
 
 ```python
-# A packing algorithm will try and find an effecient layout
+# A space effecient layout will be chosen automatically
 random_images = [random.choice([url, torch_image, numpy_image, path1, path2, path3]) 
                  for _ in range(100)]
 show(random_images)
 ```
 
 ![](https://github.com/Jako-K/justshowit/blob/main/readme_stuff/6.png?raw=True)
-
-# Choice of layout
-
-I have used the bin packing library [rectpack ](https://github.com/secnot/rectpack) to solve layout problems in situations where one or more images differ in size. This doesnt always present the images in a good way (weird looking holes, grouping of similar looking images, etc.), but I was unable to find a better solution myself. I was, however, able to find a better solution in cases where all images have the same width and height. The primary goal of this solution was to display all received images in a visually pleasing way. Defining "visually pleasing" in a way that could be formalized was a surprisingly difficult thing to do, and I wanted to try and explain my reasoning/implementation for anyone interested. The figure below should hopefully do just that:
-
-![](https://github.com/Jako-K/justshowit/blob/main/readme_stuff/algo.png?raw=True)

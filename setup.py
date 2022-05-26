@@ -8,14 +8,14 @@ long_description = (this_directory / "README.md").read_text()
 
 setup(
     name="justshowit",
-    version='0.1',
+    url="https://github.com/Jako-K/justshowit",
+    version='0.2',
     long_description=long_description,
     long_description_content_type='text/markdown',
     author="Jako-K",
-    description='Display images without any shenanigans',
+    description='Display images without all the nonsense!',
     packages=find_packages(),
     install_requires=["opencv_python_headless", "requests", "numpy", "rectpack", "Pillow"],
-    keywords=["python", "image", "images", "show", "display"]
 )
 
 
