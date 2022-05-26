@@ -80,3 +80,9 @@ show(random_images)
 ```
 
 ![](https://github.com/Jako-K/justshowit/blob/main/readme_stuff/6.png?raw=True)
+
+# Choice of layout
+
+I have used the bin packing library [rectpack ](https://github.com/secnot/rectpack) to solve layout problems in situations where one or more images differ in size. This doesn't always present images in a good way (weird looking holes, etc.), but I was unable to make a better algorithm myself. I was, however, able to find a more visually pleasing solution in cases where all images have the same width and height. Defining "visually pleasing" in a way that could be formalized was a surprisingly difficult thing to do, and I wanted explain my reasoning/implementation for anyone interested. The figure below should hopefully do just that:
+
+![](https://github.com/Jako-K/justshowit/blob/main/readme_stuff/algo.jpg?raw=True)
