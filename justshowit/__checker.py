@@ -94,7 +94,8 @@ def assert_type(to_check, expected_type, allow_none:bool=False):
     """
 
     if not isinstance(allow_none, bool):
-        raise ValueError(f"Expected `allow_None` to by of type bool, but received type `{type(allow_none)}`")
+        error_message = f"Expected `allow_None` to by of type bool, but received type `{type(allow_none)}`"
+        raise ValueError(error_message)
     if (to_check is None) and (expected_type is None):
         raise TypeError(f"`None` is not a valid type. If you're trying to check if `type(to_check) == None` try set"
                         f" `expected_type=type(None)` instead.")
@@ -104,7 +105,8 @@ def assert_type(to_check, expected_type, allow_none:bool=False):
         is_ok = (to_check is None) or is_ok
 
     if not is_ok:
-        raise TypeError(f"Expected type `{expected_type}`, but received type `{type(to_check)}`")
+        error_message = f"Expected type `{str(expected_type)}`, but received type `{type(to_check)}`"
+        raise TypeError(error_message)
 
 
 def assert_types(to_check:list, expected_types:list, allow_nones:list=None):
@@ -121,7 +123,8 @@ def assert_types(to_check:list, expected_types:list, allow_nones:list=None):
     assert_type(expected_types, list)
     assert_type(allow_nones, list, allow_none=True)
     if len(to_check) != len(expected_types):
-        raise ValueError("length mismatch between `to_check_values` and `expected_types`")
+        error_message = "length mismatch between `{to_check_values}` and `{expected_types}`"
+        raise ValueError(error_message)
 
     # If `allow_nones` is None all values are set to False.
     if allow_nones is None:
@@ -148,7 +151,9 @@ def assert_in(to_check, check_in):
     try:
         is_in = to_check in check_in
     except Exception:
-        raise RuntimeError(f"Failed to execute `to_check in check_in`")
+        error_message = f"Failed to execute `to_check in check_in`"
+        raise RuntimeError(error_message)
 
     if not is_in:
-        raise ValueError(f"Expected `{to_check}` to be in `{check_in}`, but it wasn't")
+        error_message = f"Expected `{to_check}` to be in `{check_in}`, but it wasn't"
+        raise ValueError(error_message)

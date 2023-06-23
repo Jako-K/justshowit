@@ -1,4 +1,4 @@
-# I'm going to allow that torch is not installed, it seemed a unwise to demand the installation of such a large library
+# I'm going to allow that torch is not installed, it seems unwise to demand the installation of such a large library
 _TORCH_FOUND = True
 try:
     import torch
@@ -8,15 +8,48 @@ except ModuleNotFoundError:
 import PIL
 from PIL import Image
 import requests
-from rectpack import newPacker
-import cv2 as cv2
+import cv2
 import numpy as np
 import warnings as warnings
 from . import __checker as checker
 import os
 import re
 
-def _get_collage_image(images:list, allow_rotations:bool=False):
+
+def _get_packed(rectangles, canvas_width, canvas_height):
+    def intersect(rect1, rect2):
+        x1, y1, x2, y2 = rect1
+        x3, y3, x4, y4 = rect2
+        if x1 >= x4 or x2 <= x3 or y1 >= y4 or y2 <= y3:
+            return False  # No overlap
+        return True  # Overlap
+
+    rectangles = [(w, h, i) for i, (w, h) in enumerate(rectangles)]
+    solutions = []
+    rectangles = sorted(rectangles, key=lambda r: (r[0], r[0] * r[1]), reverse=True)
+    corners = [(0, 0)]
+
+    for (rect_width, rect_height, rect_id) in rectangles:
+        for i, (corner_x, corner_y) in enumerate(corners):
+            x2 = corner_x + rect_width
+            y2 = corner_y + rect_height
+            this_box = [corner_x, corner_y, x2, y2]
+            no_intersection = not any([intersect(this_box, other_box[:4]) for other_box in solutions])
+            if (0 < x2 < canvas_width) and (0 < y2 < canvas_height) and no_intersection:
+                corners.pop(i)
+                solutions.append([corner_x, corner_y, x2, y2, rect_id])
+                corners.append((x2, corner_y))  # Upper right corner
+                corners.append((corner_x, y2))  # Lower left corner
+                break
+
+        corners = sorted(corners, key=lambda c: (c[0], c[1]))  # Sort corners by width then by height
+
+    if len(solutions) != len(rectangles):
+        return None
+    return solutions
+
+
+def _get_collage_image(images: list, allow_rotations: bool = False):
     """
     Used to pack `images` into a single image.
     NOTE: This function is only intended to be used by `show()`
@@ -32,53 +65,43 @@ def _get_collage_image(images:list, allow_rotations:bool=False):
         return _get_grid_image(images, cols, rows, resize_factor)
 
     # Setup
-    rectangles = [(s.shape[0], s.shape[1], i) for i, s in enumerate(images)]
-    height_domain = [60 * i for i in range(1, 8)] + [int(1080 * 8 / 1.05 ** i) for i in range(50, 0, -1)]
-    width_domain = [100 * i for i in range(1, 8)] + [int(1920 * 8 / 1.05 ** i) for i in range(50, 0, -1)]
-    canvas_dims = list(zip(height_domain, width_domain)) # Just different sizes to try
+    rectangles = [(s.shape[1], s.shape[0]) for s in images]
+    width_domain = [int(1920 * 8 / 1.05 ** i) for i in range(50, 0, -1)]
+    height_domain = [int(1080 * 8 / 1.05 ** i) for i in range(50, 0, -1)]
+    canvas_dims = list(zip(width_domain, height_domain))  # Just different sizes to try
     canvas_image = None
-    max_x, min_y = -1, 1e6 # Used to crop the grey parts
+    max_y, max_x = -1, -1  # Used to crop the grey parts
 
     # Attempt to pack all images into the smallest of the predefined width-height combinations
-    for canvas_dim in canvas_dims:
+    for canvas_width, canvas_height in canvas_dims:
 
         # Try packing
-        packer = newPacker(rotation=allow_rotations)
-        for r in rectangles: packer.add_rect(*r)
-        packer.add_bin(*canvas_dim)
-        packer.pack()
+        packing_solution = _get_packed(rectangles, canvas_width, canvas_height)
 
         # If all images couldn't fit, try with a larger image
-        if len(packer.rect_list()) != len(images):
+        if packing_solution is None:
             continue
 
         # Setup
-        canvas_image = np.zeros((canvas_dim[0], canvas_dim[1], 3)).astype(np.uint8) + 65 # 65 seems to be a pretty versatile grey color i.e. it looks decent no matter the pictures
-        H = canvas_image.shape[0]
+        canvas_image = np.zeros((canvas_height, canvas_width, 3)).astype(np.uint8) + 65  # 65 seems to be a pretty versatile grey color i.e. it looks decent no matter the pictures
 
-        for rect in packer[0]:
-            image = images[rect.rid]
-            h, w, y, x = rect.width, rect.height, rect.x, rect.y
-
-            # Transform origin to upper left corner
-            y = H - y - h
-
-            # Handle image rotations if necessary
-            if image.shape[:-1] != (h, w): image = image.transpose(1, 0, 2)
-            canvas_image[y:y+h, x:x+w, :] = image
-
-            if max_x < (x+w): max_x = x+w
-            if min_y > y: min_y = y
+        # (top_left_x, top_left_y, bottom_right_x, bottom_right_y)
+        for (x1, y1, x2, y2, rid) in packing_solution:
+            image = images[rid]
+            assert image.shape[:-1] == (y2 - y1, x2 - x1)
+            canvas_image[y1:y2, x1:x2, :] = image
+            if max_x < x2: max_x = x2
+            if max_y < y2: max_y = y2
 
         break
 
     if canvas_image is None:
         raise RuntimeError("Failed to produce mosaic image. This is probably caused by to many and/or to large images")
 
-    if (max_x == -1) or (min_y == 1e6):
+    if (max_x == 1e6) or (max_y == 1e6):
         raise RuntimeError("This should not be possible.")
 
-    return canvas_image[min_y:, :max_x, :]
+    return canvas_image[:max_y, :max_x, :]
 
 
 def _get_grid_parameters(images, max_height=1080, max_width=1920, desired_ratio=9/17):
