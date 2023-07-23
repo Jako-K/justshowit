@@ -102,7 +102,7 @@ show(combined, resize_factor=0.5)
 
 ```python
 
-# Works with videos as well
+# Work with videos as well
 return_image = show(video_path, return_image=True)
 type(return_image), return_image.shape
 
@@ -126,8 +126,7 @@ Besides `show`, there's 5 other functions that allow for greater customization:
 from justshowit import (
     show_collage, show_grid, show_grid_configurable, show_video, play_video
 )
-some_images = glob("./random_sized_images_wide/*") + glob("./random_sized_images_tall/*")
-#some_images = glob("./random_sized_images_wide/*")
+some_images = glob("./alot_of_different_images/*")
 
 ```
 
