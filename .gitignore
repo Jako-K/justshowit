@@ -3,6 +3,7 @@
 **/.ipynb_checkpoints
 **/.pytest_cache
 **/venv
-rect_packer_min.py
 tester.py
 readme.ipynb
+testing
+dump

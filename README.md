@@ -8,81 +8,269 @@ or
 
 # How to use
 ```python
+
+# Simple
 from justshowit import show 
 show(<your_image_source>)
+
+# More customizable
+from justshowit import show_collage, show_grid, play_video...
 ```
 
 # Demo
-
+Note: The demos presented below are all within a Jupyter notebook. However, if `justshowit` is used outside a Jupyter environment, all images will be displayed with cv2 instead.
 
 ```python
+
 from justshowit import show 
 import cv2
 import numpy as np
 import torch
 import random
+from glob import glob
 
 # Example of different input images
-url = "https://github.com/Jako-K/justshowit/blob/readme_stuff/test_image1.png"
-numpy_image = np.random.rand(250, 400, 1)
-torch_image = torch.ones((3, 300, 200)) * 255
-image_bgr = cv2.imread("./test_images/test_image2.jpg")
+url = "https://raw.githubusercontent.com/Jako-K/justshowit/main/readme_stuff/test_image1.png"
+torch_image = torch.ones((3, 200, 300)) * 150
+image_bgr = cv2.imread("./readme_stuff/test_image2.jpg")
 path1 = "./readme_stuff/test_image2.jpg"
 path2 = "./readme_stuff/test_image3.png"
 path3 = "./readme_stuff/test_image4.png"
+video_path = "./videos/archery.mp4"
+
+```
+
+```python
+
+# Display a single image
+show(url, resize_factor=0.5)
+
+```
+
+<p align="center">
+  <img src="./readme_stuff/readme_1.png" alt="Drawing"/>
+</p>
+
+```python
+
+# Display a bunch images with different shapes and formats
+show([torch_image, numpy_image, path1, path2, path3]*10, 
+     title="Bunch of images", max_output_image_size_wh=(1000,500))
+
+```
+
+<p align="center">
+  <img src="./readme_stuff/readme_2.png" alt="Drawing"/>
+</p>
+
+```python
+
+# An appropriate layout will be chosen automatically (a simple grid in this case)
+show([path1, path2, path1], resize_factor=0.5, BGR2RGB=True, save_image_path="./test.png")
+
+```
+
+<p align="center">
+  <img src="./readme_stuff/readme_3.png" alt="Drawing"/>
+</p>
+
+```python
+
+# Work with most image formats: batches, standarized, black and white...
+numpy_image_bgr = cv2.imread("./readme_stuff/test_image2.jpg")
+numpy_image = cv2.cvtColor(numpy_image_bgr, cv2.COLOR_RGB2BGR)
+numpy_image_bw = numpy_image[:,:,0]
+numpy_image_01 = numpy_image / 255
+numpy_batch = np.stack([numpy_image,numpy_image])
+
+torch_image = torch.tensor(numpy_image).permute(2,0,1)
+torch_batch = torch.stack([torch_image,torch_image])
+imagenet_mean = torch.tensor([0.485, 0.456, 0.406]).reshape(1, 3, 1, 1)
+imagenet_std = torch.tensor([0.229, 0.224, 0.225]).reshape(1, 3, 1, 1)
+standardized_batch = (torch_batch.float() / 255.0 - imagenet_mean) / imagenet_std
+
+combined = [numpy_image_bgr, numpy_image, numpy_image_bw, numpy_image_01, 
+            numpy_batch, torch_image, torch_batch, standardized_batch]
+
+show(combined, resize_factor=0.5)
+
+```
+
+<p align="center">
+  <img src="./readme_stuff/readme_4.png" alt="Drawing"/>
+</p>
+
+```python
+
+# Works with videos as well
+return_image = show(video_path, return_image=True)
+type(return_image), return_image.shape
+
+```
+
+<p align="center">
+  <img src="./readme_stuff/readme_5.png" alt="Drawing"/>
+</p>
+
+# Demo - More customizable
+
+Besides `show`, there's 5 other functions that allow for greater customization:
+1. `show_collage`: Pack a bunch of images together in an efficent way
+2. `show_grid`: Automatically find a suitable grid layout
+3. `show_grid_configurable`: Customizable grid layout (row/col/image text, drop-shadow, margin adjustment, ...)
+4. `show_video`: Display video frames with some customization (frame count, video details, ...)
+5. `play_video`: An interactive video player implemented entirely within cv2
+
+```python
+
+from justshowit import (
+    show_collage, show_grid, show_grid_configurable, show_video, play_video
+)
+some_images = glob("./random_sized_images_wide/*") + glob("./random_sized_images_tall/*")
+#some_images = glob("./random_sized_images_wide/*")
+
 ```
 
 
 ```python
-# You can show a single image
-image = show(path1)
+
+# `show_collage` will try and pack the images within the smallest possible canvas.
+# For details about the optimization and packing algorithm see <NOTE INSERT LINK>
+show_collage(
+    image_source = some_images, 
+    resize_factor=0.5,
+    canvas_domains = ((3000, 2000), (7000, 2000)), # Canvas dimensions to try
+    overlap_tolerance = 0.1, # How much each image may overlap with each other
+    max_output_image_size_wh = (2000,1500),
+    save_image_path="readme_6.png"
+)
+
 ```
 
-![](https://github.com/Jako-K/justshowit/blob/main/readme_stuff/1.jpg?raw=True)
+<p align="center">
+  <img src="./readme_stuff/readme_6.png" alt="Drawing"/>
+</p>
+
+```python
+
+# `show_grid` selects a suitable grid layout based on the shape of the images. 
+# Images with similar shapes will be resized and displayed in a grid with uniform spacing, 
+# whereas more diverse images will be shown in a layout as demonstrated below
+show_grid(
+    image_source = some_images[:48], 
+    allow_auto_resize = False, # If the function may resize to get a better grid layout
+    title = "A nice way to quickly show a lot of images",
+)
+
+```
+
+<p align="center">
+  <img src="./readme_stuff/readme_7.png" alt="Drawing"/>
+</p>
+
+```python
+
+# `show_grid_configurable` is a customizable version of `grid_show`.
+# It has a lot of functionality much of which contained within config arguments.
+# These are prefixed with `c_` e.g. `c_row_text_config` as shown below.
+show_grid_configurable(
+    image_source = list(sorted(some_images))[:6],
+    title="I can be configured quite a bit more than this",
+    cols=3,
+    rows=2,
+    col_text=["Col 1", "Col 2", "Col 3"],
+    row_text=["Row 1", "Row 2"],
+    image_text = [*"123456"],
+    c_row_text_config = {
+        'placement': 'right', 
+        'font_size': 100, 
+        'font_thickness': 7, 
+        'italic': True, 
+        'color': (200, 75, 75), 
+        'adjust_draw_distance': 50
+    }
+)
+
+```
+
+<p align="center">
+  <img src="./readme_stuff/readme_8.png" alt="Drawing"/>
+</p>
 
 
 ```python
-# Do some basic, but very common stuff
-show(image_bgr, resize_factor=0.50, BGR2RGB=True, save_to_path="./super_nice_image.png")
+
+# `show_video` extracts frames and info from a video and display them in a grid
+show_video(
+    video_path, 
+    num_frames=15, # The number of equally spaced frames to display
+    add_frame_count=True, # Adds a frame count in the left corner
+    add_video_details=True, # Display some general info: path, FPS, etc.
+    title="`resize_factor`, `title`, etc. works with all the functions",
+    save_image_path="readme_9.png"
+)
+
 ```
 
-![](https://github.com/Jako-K/justshowit/blob/main/readme_stuff/2.png?raw=True)
+<p align="center">
+  <img src="./readme_stuff/readme_9.png" alt="Drawing"/>
+</p>
 
 
 ```python
-# Show a bunch of similiar sized images 
-show([image_bgr, path1], resize_factor=0.5)
+
+# `play_video` is an interactive video player implemented entirely within cv2.
+# Control the speed with numbers 1-9 and pause the video with space.
+
+# With a path
+play_video(video_path, add_frame_count=True)
+
 ```
 
-![](https://github.com/Jako-K/justshowit/blob/main/readme_stuff/3.png?raw=True)
+<p align="center">
+  <img src="./readme_stuff/video_player_archer.gif" alt="Drawing"/>
+</p>
 
 
 ```python
-# An appropriate number of rows and columns will be chosen automatically
-show([image_bgr for i in range(27)], BGR2RGB=True)
+
+# With a list of images
+play_video(some_images, add_frame_count=True)
+
 ```
 
-![](https://github.com/Jako-K/justshowit/blob/main/readme_stuff/4.png?raw=True)
+
+<p align="center">
+  <img src="./readme_stuff/video_player_images.gif" alt="Drawing"/>
+</p>
 
 
-```python
-# You can also display a bunch of differently shaped images
-show([url, torch_image, numpy_image, path1, path2, path3], resize_factor=0.5)
-```
+# Extra functions
+The functions demoed above use a lot of helpers functions.<br>
+I realized that some of them could be useful on there own. They should be pretty self-explanatory:
 
-![](https://github.com/Jako-K/justshowit/blob/main/readme_stuff/5.png?raw=True)
+1. `draw_image_title`
+2. `draw_text_cv2`
+3. `draw_text_pillow`
+4. `parse_arbitrary_image_source`
+5. `parse_image_as_uint8_rgb_numpy_array`
+6. `parse_numpy_image_batch_as_uint8_rgb_numpy_array`
+7. `parse_torch_image_batch_as_uint8_rgb_numpy_array`
+8. `parse_video_to_images`
+9. `parse_video_to_images_fixed_count`
 
-```python
-# A space effecient layout will be chosen automatically
-random_images = [random.choice([url, torch_image, numpy_image, path1, path2, path3]) 
-                 for _ in range(100)]
-show(random_images)
-```
+# Implementation details 
+Finding an effective way to automatically display multiple images turned out to be surprisingly challenging. Through trial and error, I discovered the need to distinguish between two scenarios: (1) when all images have approximately the same shape and aspect ratio, and (2) when some or all images differ in shape and aspect ratio.
 
-![](https://github.com/Jako-K/justshowit/blob/main/readme_stuff/6.png?raw=True)
+## Case 1.
+For case (1), a grid layout was used, defined by the number of columns, rows, and image resizing. The layout was automatically chosen based on the minimizationn of three factors: deviation from a desired final aspect ratio (default 1920/1080 pixels), the number of empty cells (e.g., 14 images in a 4x4 grid would have 2 empty cells), and the amount of resizing needed for each image.
 
-# Choice of layout
+<br><br>
+![Packing Algorithm](./readme_stuff/algo.jpg)
+<br><br>
 
-I have used the bin packing library [rectpack ](https://github.com/secnot/rectpack) to solve layout problems in situations where one or more images differ in size. This doesn't always present images in a good way (weird looking holes, etc.), but I was unable to make a better algorithm myself. I was, however, able to find a more visually pleasing solution in cases where all images have the same width and height. Defining "visually pleasing" in a way that could be formalized was a surprisingly difficult thing to do, and I wanted explain my reasoning/implementation for anyone interested. The figure below should hopefully do just that:
-
-![](https://github.com/Jako-K/justshowit/blob/main/readme_stuff/algo.jpg?raw=True)
+## Case 2.
+In case (2), a "collage" approach was employed. A set of potential canvases was provided to a packing algorithm, which then attempted to find a visually pleasing layout. Formalizing "visually pleasing" proved challenging and is still a work in progress. An illutstration of the packing algorithm can be seen below (A few details have been left out, but the illustation is mostly complete)
+<br><br>
+![Packing Algorithm](./readme_stuff/packing_algo.png)
+<br><br>

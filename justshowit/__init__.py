@@ -1,28 +1,53 @@
-from .__show_logic import show
+# TODO Remove this when debugging is done:
+# TODO It's only here so i can import `justshowit` in jupyter notebook while also debugging in pycharm without having to change import statements to `from . _`
+import sys as __sys
+import os as __os
+__sys.path.append(__os.path.abspath(__os.path.dirname(__file__)))
+
+from __config import global_config
+from __show import show
+from __collage import *
+from __parser import *
+from __grid import *
+from __video import *
+from __image_modifier import *
 
 ###################################################################
-# 								TODO
+# TODO - All over
 ###################################################################
 
-# 1.) Make a show_video - also allow for videos passed as list e.g. np.array of shape (frames, height, width, color_channels)
-# 2.) Plot a whole batch
-# 3.) Add some sort of warning if a tensor that has been normalized is passed to `show`. Normally their values spand just beyond 0-1 range at this should be detectable in most instances
-# 4.) Add shape take for numpy input images 
-# 5.) Grid show function. It should be have user defined rows + cols + individual titles + spacing + other quality of life stuff
-# 6.) Make the _get_image function public. I think it should be as simple as adding checks?
-# 7.) Add a show torch_batch with added renormalized capability.
-
-# 9.) Better custom packing algorithm:
-#       a.) Make a heuristic that works by calculating how much of the image could be cropped away if the rect is placed at any given location
-#       b.) Make a NN heuristic. It could take some fixed of rects as input e.g. 200 x 4 + canvas_dims. The loss could simply be the less over space after cropping?
-#           The model could perhaps be allowed to overlap images, but penalize it relatively hard?
-#           Instead of outputting e.g. 200 x 4 it could be 200 x 5, where the extra number that say, hey this image doesn't really fit, sigmoid score?
-
+# 20.) Add the possibility to save videos and individual frames with e.g. enter in `VideoPlayer`
+# 21.) List torch as an optional package requirement
+# 23.) `resize_universal_output_image` can be off by one pixel, fix it. Must be a simple rounded error somewhere
+# 25.) Is it a good idea to have \n in errors? I'm thinking that it may fuck up the layout completely if used on a screen/terminal that is not standard size?
+# 28.) Check all <NEW_VALUE> prints are correct had a very confusion problem with global_config.min_width and global_config.image_min_width
+# 29.) Go through all the places i comment on comment names and check they are still valid
+# 30.) Implement a random rotation option to show_collage
+# 31.) Implement `play_audio`
+# 32.) Implement `play_gif`
+# 33.) add checks that the resized image in `resize_image_respect_aspect_ratio` is not below the minimum value defined in the global_config
+# 34.) add resize to play_video perhaps even interactively
+# 35.) the extra white space on the left handside of the text between these two: `row_text=["A"*100, "B", "C"], row_text=["A"*20, "B", "C"]` are not the same. They should be.
+# 36.) Give a warning for `row_text=["A"*10000, "B", "C"]`
+# 37.) setup(..., python_requires='>=3.??') what version should I set as a minimum for python, and should there be a minimum version for e.g. numpy as well?
+# 38.) Change name on pip
+# 39.) `max_output_image_size_wh` produce an image larger than the allowed in `show_collage`
 
 ###################################################################
-# 						   TODO - Done
+# #TODO Bugs
 ###################################################################
 
-# 1.) Write you own packer. I really don't like that I'm relying on `rectpack`.
-#     It's a heavily object-oriented project which, to me at least, is very hard to reason about because it's so steeped in abstractions and indirections.
-#     It would be much better to have a self-contained function that do exactly what I need it to and no more. It would also shield me against future issues.
+# Find out why this cannot be parsed correctly
+# >> __image.just_show_image(np.ones((100, 200, 3), dtype="uint8") * (255, )*3)
+
+###################################################################
+# TODO - Complete Rewrite
+###################################################################
+#
+# 2.) __checker.py                                          DONE
+# 3.) __collage.py                                          DONE
+# 4.) __parser.py                                           DONE
+# 5.) __grid.py                                             DONE-ish (need tons more testing)
+# 6.) __video.py                                            DONE
+# 7.) __image_modifier                                      DONE
+# 8.) __show                                                DONE
