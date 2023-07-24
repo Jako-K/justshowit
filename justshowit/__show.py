@@ -118,9 +118,9 @@ def show(
     if isinstance(image_source, list) and (len(image_source) == 1):
         final_image = image_source[0]
     elif max(__grid.get_all_possible_aspect_ratios(image_source)) < 0.1:
-        final_image = __grid.show_grid(image_source, display_image=False, return_image=True, max_output_image_size_wh=None)
+        final_image = __grid.show_grid(image_source, display_image=False, return_image=True, max_output_image_size_wh=(3000, 3000))
     else:
-        final_image = __collage.show_collage(image_source, display_image=False, return_image=True, max_output_image_size_wh=None)
+        final_image = __collage.show_collage(image_source, display_image=False, return_image=True, max_output_image_size_wh=(3000, 3000))
 
     # Wrap up
     if title:

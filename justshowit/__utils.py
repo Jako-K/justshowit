@@ -42,18 +42,39 @@ def get_font(font_size:int, font_thickness:int, italic:bool=False):
         (7, True):  'JetBrainsMono-ExtraBoldItalic.ttf'
     }
 
-    # Load font
+    # Load font from path
     font_name = font_name_mapper[(font_thickness, italic)]
     current_folder_path = os.path.dirname(__file__)
     absolute_font_path = os.path.join(current_folder_path, "__fonts", font_name) # This is probably overkill, but I don't want to deal with any relative path shenanigans
-    assert os.path.exists(absolute_font_path), f"Failed to load the font from path: `{absolute_font_path}`.\n" \
-                                               f"This should not be possible because all __fonts are validated before reaching this point. " \
-                                               f"So, I'm uncertain why the font cannot be located.."
-    try:
-        font = ImageFont.truetype(absolute_font_path, size=font_size)
-        return font
-    except Exception as e:
-        raise RuntimeError(f"Failed to load `{font_name=}` with error:\n`{e}`")
+    if os.path.exists(absolute_font_path):
+        try:
+            font = ImageFont.truetype(absolute_font_path, size=font_size)
+            return font
+        except Exception as e:
+            msg = f"Failed to load `{font_name=}` from path: `{absolute_font_path}`.\n" \
+            f"This should not be possible because all __fonts are validated before reaching this point. " \
+            f"So, I'm uncertain why the font cannot be located..\n" \
+            f"The error:\n`{e}`"
+            raise RuntimeError(msg)
+    # TODO: Should there be a third option here that tries to download the font directly from the github page?
+    # TODO: Find out if it makes better sense to try the encoding first and then the path
+    # Load font directly from encodings
+    else:
+        from __encoded_font_data import fonts_encoded
+        import base64
+        import io
+        try:
+            encoded_font_data = fonts_encoded[font_name]
+            binary = base64.b64decode(encoded_font_data)  # decode from base64 to binary
+            FileLike = io.BytesIO(binary)  # wrap in BytesIO to make file-like object
+            font = ImageFont.truetype(FileLike, size=font_size)  # load font
+            return font
+        except Exception as e:
+            msg = f"Failed to load `{font_name=}` from path: `{absolute_font_path}` and from pre-made encodings.\n" \
+                  f"This should not be possible because all __fonts are validated before reaching this point. " \
+                  f"So, I'm uncertain why the font cannot be located..\n" \
+                  f"The error:\n`{e}`"
+            raise RuntimeError(msg)
 
 
 def frame_can_be_read(cap, index):
