@@ -6,7 +6,7 @@ long_description = (this_directory / "README.md").read_text()
 setup(
     name="justshowit",
     url="https://github.com/Jako-K/justshowit",
-    version='0.2',
+    version='1.0',
     long_description=long_description,
     long_description_content_type='text/markdown',
     author="Jako-K",

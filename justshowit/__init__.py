@@ -32,6 +32,7 @@ from __image_modifier import *
 # 37.) setup(..., python_requires='>=3.??') what version should I set as a minimum for python, and should there be a minimum version for e.g. numpy as well?
 # 38.) Change name on pip
 # 39.) `max_output_image_size_wh` produce an image larger than the allowed in `show_collage`
+# 40.) Should this be here, it gets triggered super often: "cv2's frame count is unreliable, this may be an indication that cv2 is struggling to read `video_path='/kaggle/input/video-file-for-lane-detection-project/test_video.mp4"
 
 ###################################################################
 # #TODO Bugs

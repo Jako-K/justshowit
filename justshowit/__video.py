@@ -227,8 +227,7 @@ def show_video(
     if add_video_details:
         video_path_abs = os.path.abspath(video_path)
         final = __image_modifier.draw_image_title(final, info["as_string"], top_padding_color=(245, 245, 245), font_size=10, text_color=(100, 100, 100), top_padding=16)
-        #final = __image_modifier.draw_image_title(final, video_path_abs, top_padding_color=(245,245,245), font_size=10, text_color=(100,100,100), top_padding=16, italic=True)
-        final = __image_modifier.draw_image_title(final, r"C:\modules\justshowit\testing\archery.mp4", top_padding_color=(245, 245, 245), font_size=10, text_color=(100, 100, 100), top_padding=16, italic=True)
+        final = __image_modifier.draw_image_title(final, video_path_abs, top_padding_color=(245,245,245), font_size=10, text_color=(100,100,100), top_padding=16, italic=True)
     if title is not None:
         final = __image_modifier.draw_image_title(final, title, top_padding_color=(245, 245, 245))
     if save_image_path is not None:
