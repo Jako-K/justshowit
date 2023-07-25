@@ -103,7 +103,7 @@ def parse_video_to_images(video_path: str, keep_nth_frame: int=5, add_frame_coun
 
     # Load video
     cap, info = __utils.get_cv2_video_capture(video_path)
-    iterator = np.arange(0, info["frame_count"]+1, keep_nth_frame)
+    iterator = np.arange(0, info["frame_count"], keep_nth_frame)
     frame_count_goal = len(iterator)
 
     # Frame extraction
@@ -153,7 +153,7 @@ def parse_video_to_images_fixed_count(video_path: str, num_frames: int, add_fram
     cap, info = __utils.get_cv2_video_capture(video_path)
 
     # Determine which frame indexes should be extracted
-    all_frame_indexes = np.arange(info["frame_count"]+1)
+    all_frame_indexes = np.arange(info["frame_count"])
     iterator = __utils.extract_equally_spaced_numbers(all_frame_indexes, num_frames)
 
     # Extract frames
@@ -244,3 +244,6 @@ def show_video(
         return info
 
 __all__ = ["play_video", "parse_video_to_images", "parse_video_to_images_fixed_count", "show_video"]
+
+if __name__ == '__main__':
+    show_video("C:/Users/Jakob/Desktop/boviwalk_preprocessing/archery.mp4")
