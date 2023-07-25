@@ -89,7 +89,7 @@ def is_valid_end_frame(cap, index):
     return frame_can_be_read(cap, index) and (not frame_can_be_read(cap, index+1))
 
 
-def get_cv2_video_capture(video_path: str, max_iteration: int = 50) -> Tuple[cv2.VideoCapture, dict]:
+def get_cv2_video_capture(video_path: str, max_iteration: int = 75) -> Tuple[cv2.VideoCapture, dict]:
     """
     "Ensure successful loading of cv2.VideoCapture(video_path) and provide some video information, including a reliable frame count."
 
@@ -138,8 +138,8 @@ def get_cv2_video_capture(video_path: str, max_iteration: int = 50) -> Tuple[cv2
         cap.set(cv2.CAP_PROP_POS_FRAMES, 0)
         return cap, info
     else:
-        msg = f"cv2's frame count is unreliable, this may be an indication that cv2 is struggling to read `{video_path=}`."
-        warnings.warn(msg)
+        # msg = f"cv2's frame count is unreliable, this may be an indication that cv2 is struggling to read `{video_path=}`."
+        # warnings.warn(msg)
         info["cv2_is_unstable"] = True
 
     # ---------------------------------------
@@ -148,7 +148,7 @@ def get_cv2_video_capture(video_path: str, max_iteration: int = 50) -> Tuple[cv2
 
     # Find some reasonable starting values
     start_value = 0
-    for end_value in [1, 100, 1000, 5000, 10_000, 100_000, int(1e6), int(1e7), int(1e8)]:
+    for end_value in [1, 100, 1000, 5000, 10_000, 100_000, int(1e6), int(1e7), int(1e8), int(1e9), int(1e10)]:
         failed_to_read = not frame_can_be_read(cap, end_value)
         if failed_to_read:
             break
@@ -165,7 +165,7 @@ def get_cv2_video_capture(video_path: str, max_iteration: int = 50) -> Tuple[cv2
             start_value = seperation_point
         if (end_value - start_value) == 1:
             assert is_valid_end_frame(cap, start_value), "Something went wrong"
-            info["frame_count"] = start_value
+            info["frame_count"] = end_value
             info["duration_sec"] = round(info["frame_count"] / info["fps"], 2)
             info["as_string"] = f'saved: {info["save_time"]}  ' \
                                 f'duration: {info["duration_sec"]} sec  ' \

@@ -171,6 +171,7 @@ def show_video(
         add_frame_count:bool=True,
         verbose:bool=True,
         add_video_details:bool=True,
+        return_video_details:bool=False,
         title: Optional[str] = None,
         display_image: bool = True,
         return_image: bool = False,
@@ -178,7 +179,7 @@ def show_video(
         save_image_path: Optional[str] = None,
         resize_factor: float = 1.0,
         BGR2RGB: bool = False,
-) -> Optional[ndarray]:
+) -> Optional[ndarray | Tuple[np.ndarray, dict] | dict]:
     """
     Generate a grid image that displays `num_frames` equally spaced frames from `video_path`.
 
@@ -187,6 +188,7 @@ def show_video(
     :param add_frame_count: If True, add frame count to the displayed frames. Default is True.
     :param verbose: If True, display information about the video. Default is True.
     :param add_video_details: If True, add video details (fps, frame size, etc.) to the displayed frames.
+    :param return_video_details: If True, return a dict with video details (fps, frame size, etc.)
     :param title: Custom title for the displayed frames. If not provided, the video file name will be used as the title.
     :param display_image: If True, display the processed image using cv2.imshow() or PIL if in jupyter.
     :param return_image: If True, return the processed image as a np.ndarray (H, W, 3).
@@ -234,7 +236,11 @@ def show_video(
         __utils.save_image_to_disk(save_image_path, final)
     if display_image:
         __show.show_image(final)
-    if return_image:
+    if return_image and return_video_details:
+        return final, info
+    elif return_image and (not return_video_details):
         return final
+    elif (not return_image) and return_video_details:
+        return info
 
 __all__ = ["play_video", "parse_video_to_images", "parse_video_to_images_fixed_count", "show_video"]
