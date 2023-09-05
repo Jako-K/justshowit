@@ -17,24 +17,26 @@ import __show
 image_formats = global_config.image_formats
 video_formats_all = global_config.video_formats_all
 video_formats_tested = global_config.video_formats_tested
-
-def play_video(image_source: str | List[ImageSource], add_frame_count:bool=True) -> None:
+# TODO: Check `parse_image` it was written very fast
+def play_video(image_source: str | List[ImageSource], add_frame_count:bool=True, parse_image:bool = True) -> None:
     """
     Play `image_source` in an interactive video player implemented entirely within cv2.
 
     :param image_source: A video path or ImageSource: ndarray, url, path, torch, PIL, video_path. For a full description see: TODO insert link
     :param add_frame_count: If True, add a frame count in the upper left corner.
+    :param parse_image: If True, will thoroughly check `image_source` and ensure it's in the correct format
     :return:
     """
 
-    __checker.assert_type(add_frame_count, bool, "add_frame_count")
+    __checker.assert_types([add_frame_count, parse_image], [bool, bool], ["add_frame_count", "parse_image"])
     if isinstance(image_source, str): # TODO write a check video string function
         __checker.assert_valid_video_path(image_source)
     else:
-        old_value = global_config.show_max_image_amount
-        global_config.show_max_image_amount = 1e6
-        image_source = __parser.parse_arbitrary_image_source(image_source)
-        global_config.show_max_image_amount = old_value
+        if parse_image:
+            old_value = global_config.show_max_image_amount
+            global_config.show_max_image_amount = 1e6
+            image_source = __parser.parse_arbitrary_image_source(image_source)
+            global_config.show_max_image_amount = old_value
         if len(image_source) >= 2:
             image_source = __image_modifier.center_pad_images_into_nparray(image_source)
     if len(image_source) < 2:
@@ -247,3 +249,7 @@ __all__ = ["play_video", "parse_video_to_images", "parse_video_to_images_fixed_c
 
 if __name__ == '__main__':
     show_video("C:/Users/Jakob/Desktop/boviwalk_preprocessing/archery.mp4")
+    from PIL import Image, ImageDraw
+    img = Image.open("hopper.jpg")
+    draw = ImageDraw.Draw(img)
+    draw.line()

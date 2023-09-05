@@ -33,6 +33,10 @@ from __image_modifier import *
 # 38.) Change name on pip
 # 39.) `max_output_image_size_wh` produce an image larger than the allowed in `show_collage`
 # 40.) Should this be here, it gets triggered super often: "cv2's frame count is unreliable, this may be an indication that cv2 is struggling to read `video_path='/kaggle/input/video-file-for-lane-detection-project/test_video.mp4"
+# 41.) Make a show_table function that can nicely display a pandas dataframe or a dict
+# 42.) Make a no_parse option to play_video
+# 43.) Make a get video info instead of having to use `return_video_details`
+# 44.) This is not neccesary: return _parse_numpy(image) in `_parse_path` and it slows the program down by a lot
 
 ###################################################################
 # #TODO Bugs

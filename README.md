@@ -47,9 +47,7 @@ show(url, resize_factor=0.5)
 
 ```
 
-<p align="center">
-  <img src="./readme_stuff/readme_1.png" alt="Drawing"/>
-</p>
+![](https://github.com/Jako-K/justshowit/blob/main/readme_stuff/readme_1.png?raw=True)
 
 ```python
 
@@ -59,9 +57,7 @@ show([torch_image, numpy_image, path1, path2, path3]*10,
 
 ```
 
-<p align="center">
-  <img src="./readme_stuff/readme_2.png" alt="Drawing"/>
-</p>
+![](https://github.com/Jako-K/justshowit/blob/main/readme_stuff/readme_2.png?raw=True)
 
 ```python
 
@@ -70,9 +66,7 @@ show([path1, path2, path1], resize_factor=0.5, BGR2RGB=True, save_image_path="./
 
 ```
 
-<p align="center">
-  <img src="./readme_stuff/readme_3.png" alt="Drawing"/>
-</p>
+![](https://github.com/Jako-K/justshowit/blob/main/readme_stuff/readme_3.png?raw=True)
 
 ```python
 
@@ -96,9 +90,8 @@ show(combined, resize_factor=0.5)
 
 ```
 
-<p align="center">
-  <img src="./readme_stuff/readme_4.png" alt="Drawing"/>
-</p>
+![](https://github.com/Jako-K/justshowit/blob/main/readme_stuff/readme_4.png?raw=True)
+
 
 ```python
 
@@ -108,9 +101,7 @@ type(return_image), return_image.shape
 
 ```
 
-<p align="center">
-  <img src="./readme_stuff/readme_5.png" alt="Drawing"/>
-</p>
+![](https://github.com/Jako-K/justshowit/blob/main/readme_stuff/readme_5.png?raw=True)
 
 # Demo - More customizable
 
@@ -134,7 +125,8 @@ some_images = glob("./alot_of_different_images/*")
 ```python
 
 # `show_collage` will try and pack the images within the smallest possible canvas.
-# For details about the optimization and packing algorithm see <NOTE INSERT LINK>
+# For details about the optimization and packing algorithm see `Implementation details`
+# at the bottom of the page.
 show_collage(
     image_source = some_images, 
     resize_factor=0.5,
@@ -146,9 +138,7 @@ show_collage(
 
 ```
 
-<p align="center">
-  <img src="./readme_stuff/readme_6.png" alt="Drawing"/>
-</p>
+![](https://github.com/Jako-K/justshowit/blob/main/readme_stuff/readme_6.png?raw=True)
 
 ```python
 
@@ -163,9 +153,7 @@ show_grid(
 
 ```
 
-<p align="center">
-  <img src="./readme_stuff/readme_7.png" alt="Drawing"/>
-</p>
+![](https://github.com/Jako-K/justshowit/blob/main/readme_stuff/readme_7.png?raw=True)
 
 ```python
 
@@ -192,9 +180,7 @@ show_grid_configurable(
 
 ```
 
-<p align="center">
-  <img src="./readme_stuff/readme_8.png" alt="Drawing"/>
-</p>
+![](https://github.com/Jako-K/justshowit/blob/main/readme_stuff/readme_8.png?raw=True)
 
 
 ```python
@@ -211,9 +197,7 @@ show_video(
 
 ```
 
-<p align="center">
-  <img src="./readme_stuff/readme_9.png" alt="Drawing"/>
-</p>
+![](https://github.com/Jako-K/justshowit/blob/main/readme_stuff/readme_9.png?raw=True)
 
 
 ```python
@@ -226,9 +210,7 @@ play_video(video_path, add_frame_count=True)
 
 ```
 
-<p align="center">
-  <img src="./readme_stuff/video_player_archer.gif" alt="Drawing"/>
-</p>
+![](https://github.com/Jako-K/justshowit/blob/main/readme_stuff/video_player_archer.gif?raw=True)
 
 
 ```python
@@ -238,10 +220,7 @@ play_video(some_images, add_frame_count=True)
 
 ```
 
-
-<p align="center">
-  <img src="./readme_stuff/video_player_images.gif" alt="Drawing"/>
-</p>
+![](https://github.com/Jako-K/justshowit/blob/main/readme_stuff/video_player_images.gif?raw=True)
 
 
 # Extra functions
@@ -265,11 +244,11 @@ Finding an effective way to automatically display multiple images turned out to 
 For case (1), a grid layout was used, defined by the number of columns, rows, and image resizing. The layout was automatically chosen based on the minimizationn of three factors: deviation from a desired final aspect ratio (default 1920/1080 pixels), the number of empty cells (e.g., 14 images in a 4x4 grid would have 2 empty cells), and the amount of resizing needed for each image.
 
 <br><br>
-![Packing Algorithm](./readme_stuff/algo.jpg)
+![Packing Algorithm](https://github.com/Jako-K/justshowit/blob/main/readme_stuff/algo.jpg?raw=True)
 <br><br>
 
 ## Case 2.
 In case (2), a "collage" approach was employed. A set of potential canvases was provided to a packing algorithm, which then attempted to find a visually pleasing layout. Formalizing "visually pleasing" proved challenging and is still a work in progress. An illutstration of the packing algorithm can be seen below (A few details have been left out, but the illustation is mostly complete)
 <br><br>
-![Packing Algorithm](./readme_stuff/packing_algo.png)
+![Packing Algorithm](https://github.com/Jako-K/justshowit/blob/main/readme_stuff/packing_algo.png?raw=True)
 <br><br>

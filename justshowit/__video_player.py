@@ -326,6 +326,7 @@ class VideoPlayer:
                 self.next_frame(increment=True)
 
             self.slider.draw_slider(self.current_frame)
+            # TODO add call back for frame processing
             cv2.imshow(self.window_name, self.current_frame)
 
             if self.cap.frame_index != self.slider.slider_value: # TODO: rewrite, they should not have separate "shared" state

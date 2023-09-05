@@ -54,6 +54,7 @@ def _parse_path(image_path) -> np.ndarray:
     except Exception as e:
         raise RuntimeError(f"`{image_path=}` was interpreted as an image path, but it could not be loaded due to the error: `{e}`")
 
+    # TODO: Is this neccesary? cv2.imread always return a correctly formatted RGB image as far as I can tell
     try:
         return _parse_numpy(image)
     except Exception as e:
