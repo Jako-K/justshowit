@@ -97,7 +97,6 @@ show(combined, resize_factor=0.5)
 
 # Work with videos as well
 return_image = show(video_path, return_image=True)
-type(return_image), return_image.shape
 
 ```
 

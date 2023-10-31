@@ -239,7 +239,7 @@ def _parse_torch(torch_image:torch.Tensor, attempt_inverse_standardization_if_ne
 
     # Setup
     t_min, t_max, t_std, t_mean = torch.min(torch_image), torch.max(torch_image), torch.std(torch_image.float()), torch.mean(torch_image.float())
-    is_not_normalized_image = (torch_image.min() < -0.01).any() and (torch_image.max() > 1.01).any()
+    is_not_normalized_image = (torch_image.min() < -0.01).any() or (torch_image.max() > 1.01).any()
     range_assumed_standardized = (-10 < t_min) and (t_max < 10)
     std_and_mean_assumed_standardized = (-1 < t_std) and (t_std < 3.0) and (-2 < t_mean) and (t_mean < 2)
 
@@ -449,7 +449,7 @@ def parse_image_as_uint8_rgb_numpy_array(image_source: ImageType, resize_factor:
     # Final check
     if not isinstance(image, np.ndarray):
         raise ValueError(f"Failed to convert `{type(image_source)=}` to an np.ndarray for unknown reasons.{extra_debug_info}")
-    if (image < 0).any() and (image > 255).any():
+    if (image < 0).any() or (image > 255).any():
         raise ValueError(f"The pixel values of `image_source` are not valid and all automatic conversions failed.{extra_debug_info}")
     if image.dtype != np.uint8:
         raise ValueError(f"Failed to convert `{image_source.dtype=}` to dtype uint8 for unknown reasons.{extra_debug_info}")

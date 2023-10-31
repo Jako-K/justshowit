@@ -159,9 +159,9 @@ def parse_video_to_images_fixed_count(video_path: str, num_frames: int, add_fram
     iterator = __utils.extract_equally_spaced_numbers(all_frame_indexes, num_frames)
 
     # Extract frames
-    if info["cv2_is_unstable"] and (max(iterator) > 10_000) and (np.max(np.abs(np.diff(iterator))) > 100):
-        msg = f"cv2's frame count was unreliable, this prevents speedups during frame iteration."
-        warnings.warn(msg)
+    # if info["cv2_is_unstable"] and (max(iterator) > 10_000) and (np.max(np.abs(np.diff(iterator))) > 100):
+    #     msg = f"cv2's frame count was unreliable, this prevents speedups during frame iteration."
+    #     warnings.warn(msg)
     t = int(1e6) if info["cv2_is_unstable"] else 100
     frames = _extract_frames(cap, iterator, info, add_frame_count, verbose, frame_skipping_threshold=t)
     return frames, info

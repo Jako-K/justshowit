@@ -20,8 +20,8 @@ class Config:
 
     # __show
     show_max_image_amount:int = 100
-    image_min_width:int = 10 # This value may not go below 4, because of errors thrown in __parser
-    image_min_height:int = 10  # This value may not go below 4, because of errors thrown in __parser
+    image_min_width:int = 5 # This value may not go below 4, because of errors thrown in __parser
+    image_min_height:int = 5  # This value may not go below 4, because of errors thrown in __parser
 
     # Torch
     try_inverse_torch_standardization:bool = True

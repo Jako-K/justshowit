@@ -399,7 +399,7 @@ def show_grid_configurable(
         image_text: List[str] = None,
         col_text: List[str] = None,
         row_text: List[str] = None,
-        canvas_background_color: Tuple[int, int, int] = (240, 240, 240),
+        canvas_background_color: Tuple[int, int, int] = (255, 255, 255),
         title: Optional[str] = None,
         display_image: bool = True,
         return_image: bool = False,

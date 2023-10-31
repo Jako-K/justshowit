@@ -11,6 +11,7 @@ from __parser import *
 from __grid import *
 from __video import *
 from __image_modifier import *
+from __utils import *
 
 ###################################################################
 # TODO - All over
@@ -37,6 +38,8 @@ from __image_modifier import *
 # 42.) Make a no_parse option to play_video
 # 43.) Make a get video info instead of having to use `return_video_details`
 # 44.) This is not neccesary: return _parse_numpy(image) in `_parse_path` and it slows the program down by a lot
+# 45.) Either cast a tuple to a list or throw and error when you recieve a tuple. Encountered some esoteric errors while testing tuples of image_sources
+
 
 ###################################################################
 # #TODO Bugs
@@ -44,6 +47,8 @@ from __image_modifier import *
 
 # Find out why this cannot be parsed correctly
 # >> __image.just_show_image(np.ones((100, 200, 3), dtype="uint8") * (255, )*3)
+# If the user provide a folder path that does not exists: throw an error e.g.
+# >>> show(image, save_image_path="./asdjklæasdasdljks/IMAGE.png")
 
 ###################################################################
 # TODO - Complete Rewrite

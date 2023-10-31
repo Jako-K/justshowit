@@ -8,3 +8,6 @@ readme.ipynb
 testing
 dump
 unit_test
+justshowit.egg-info
+dist
+build
