@@ -6,15 +6,15 @@ __sys.path.append(__os.path.abspath(__os.path.dirname(__file__)))
 
 from __config import global_config
 from __show import show
-from __collage import *
-from __parser import *
-from __grid import *
-from __video import *
-from __image_modifier import *
-from __utils import *
+from __collage import show_collage
+from __parser import parse_torch_image_batch_as_uint8_rgb_numpy_array, parse_numpy_image_batch_as_uint8_rgb_numpy_array, parse_image_as_uint8_rgb_numpy_array, parse_arbitrary_image_source
+from __grid import show_grid_configurable, show_grid
+from __video import play_video, parse_video_to_images, parse_video_to_images_fixed_count, show_video
+from __image_modifier import draw_text_cv2, draw_text_pillow, draw_image_title
+from __utils import get_cv2_video_capture
 
 ###################################################################
-# TODO - All over
+# TODO - All around
 ###################################################################
 
 # 20.) Add the possibility to save videos and individual frames with e.g. enter in `VideoPlayer`
@@ -39,7 +39,7 @@ from __utils import *
 # 43.) Make a get video info instead of having to use `return_video_details`
 # 44.) This is not neccesary: return _parse_numpy(image) in `_parse_path` and it slows the program down by a lot
 # 45.) Either cast a tuple to a list or throw and error when you recieve a tuple. Encountered some esoteric errors while testing tuples of image_sources
-
+# 46.) I add to drop using the `from <module> import *` within the init function because the submodules wouldn't be visible to certain IDEs. It would be nice with a check that could ensure all functions, etc. is imported when e.g. something new is added
 
 ###################################################################
 # #TODO Bugs
