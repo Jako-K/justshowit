@@ -34,7 +34,7 @@ def _get_grid_dimensions(images:List[np.ndarray], rows:int, cols:int):
 
     return coordinates, max_width_per_col, max_height_per_row
 
-def _get_canvas(dummy_draw, row_text, col_text, row_font, col_font, max_height_per_row, rows, col_spacing, text_adjusted_font_size, max_width_per_col, cols, row_spacing, canvas_background_color, image_area_margins):
+def _get_canvas(dummy_draw, row_text, col_text, row_font, col_font, max_height_per_row, rows, row_spacing, text_adjusted_font_size, max_width_per_col, cols, col_spacing, canvas_background_color, image_area_margins):
     # Find out how much extra width/height is needed for row/col text
     extra_height_col_text, extra_width_row_text = 0, 0
     if row_text:
@@ -47,8 +47,8 @@ def _get_canvas(dummy_draw, row_text, col_text, row_font, col_font, max_height_p
     margins_height = image_area_margins["top"] + image_area_margins["bottom"]
 
     # Construct the canvas find a suitable size given the inputs
-    canvas_height = margins_height + extra_height_col_text + sum(max_height_per_row) + (rows-1)*col_spacing + (rows-1)*text_adjusted_font_size
-    canvas_width =  margins_width  + extra_width_row_text  + sum(max_width_per_col)  + (cols-1)*row_spacing
+    canvas_height = margins_height + extra_height_col_text + sum(max_height_per_row) + (rows-1)*row_spacing + (rows-1)*text_adjusted_font_size
+    canvas_width =  margins_width  + extra_width_row_text  + sum(max_width_per_col)  + (cols-1)*col_spacing
     canvas_height, canvas_width = int(canvas_height), int(canvas_width)
     canvas = np.zeros((canvas_height, canvas_width, 3)).astype(np.uint8)
     canvas[...] = canvas_background_color
@@ -63,7 +63,7 @@ def _draw_text(canvas, x, y, text, color, font):
     canvas = np.array(canvas)
     return canvas
 
-def _get_cell_data(images, image_text, offset_x, offset_y, coordinates, dummy_draw, text_font, row_spacing, max_width_per_col, col_spacing, text_adjusted_font_size, max_height_per_row):
+def _get_cell_data(images, image_text, offset_x, offset_y, coordinates, dummy_draw, text_font, col_spacing, max_width_per_col, row_spacing, text_adjusted_font_size, max_height_per_row):
     cell_data = []
 
     for i, (row, col) in enumerate(coordinates):
@@ -75,8 +75,8 @@ def _get_cell_data(images, image_text, offset_x, offset_y, coordinates, dummy_dr
             _, _, text_width, text_height = dummy_draw.textbbox((0, 0), cell_text, font=text_font)
 
         # Cell coordinates
-        cell_upper_left_x = offset_x + sum(max_width_per_col[:col])  + col*row_spacing
-        cell_upper_left_y = offset_y + sum(max_height_per_row[:row]) + row*(col_spacing+text_adjusted_font_size)
+        cell_upper_left_x = offset_x + sum(max_width_per_col[:col])  + col*col_spacing
+        cell_upper_left_y = offset_y + sum(max_height_per_row[:row]) + row*(row_spacing+text_adjusted_font_size)
         cell_lower_right_x = cell_upper_left_x + max_width_per_col[col]
         cell_lower_right_y = cell_upper_left_y + max_height_per_row[row]
 
@@ -115,26 +115,26 @@ def _get_cell_data(images, image_text, offset_x, offset_y, coordinates, dummy_dr
         })
     return cell_data
 
-def _draw_separation_lines(canvas, sep_line_color, image_area_offset_y, rows, col_spacing, text_adjusted_font_size, max_height_per_row, image_area_offset_x, cols, row_spacing, max_width_per_col, cell_data, col_sep_line, row_sep_line):
+def _draw_separation_lines(canvas, sep_line_color, image_area_offset_y, rows, row_spacing, text_adjusted_font_size, max_height_per_row, image_area_offset_x, cols, col_spacing, max_width_per_col, cell_data, col_sep_line, row_sep_line):
     # If the line is this faint, I might as well just skip the line drawing all together, right?
     if sep_line_color[3] < 0.01:
         return canvas
 
     alpha_overlay = canvas.copy() if (sep_line_color and (sep_line_color[3] < 1.0)) else None
     y_min = int(image_area_offset_y)
-    y_max = int(image_area_offset_y + (rows - 1) * (col_spacing + text_adjusted_font_size) + max_height_per_row.sum())
+    y_max = int(image_area_offset_y + (rows - 1) * (row_spacing + text_adjusted_font_size) + max_height_per_row.sum())
     x_min = int(image_area_offset_x)
-    x_max = int(image_area_offset_x + (cols - 1) * row_spacing + max_width_per_col.sum())
+    x_max = int(image_area_offset_x + (cols - 1) * col_spacing + max_width_per_col.sum())
 
     for cell in cell_data:
         x2, y2 = cell["cell_lower_right_x"], cell["cell_lower_right_y"]
 
         if (cell["row"] == 0) and (cell["col"] < (cols - 1)) and (col_sep_line > 0):
-            x = round(x2 + row_spacing / 2 - round(col_sep_line / 2))  # The double round just looks better for whatever reason
+            x = round(x2 + col_spacing / 2 - round(col_sep_line / 2))  # The double round just looks better for whatever reason
             cv2.line(canvas, (x, y_min), (x, y_max), sep_line_color, col_sep_line)
 
         if (cell["col"] == 0) and (cell["row"] < (rows - 1)) and (row_sep_line > 0):
-            y = round(y2 + col_spacing / 2 - round(row_sep_line / 2) + text_adjusted_font_size / 2)  # The double round just looks better for whatever reason
+            y = round(y2 + row_spacing / 2 - round(row_sep_line / 2) + text_adjusted_font_size / 2)  # The double round just looks better for whatever reason
             cv2.line(canvas, (x_min, y), (x_max, y), sep_line_color, row_sep_line)
 
     # Line transparency
@@ -212,7 +212,7 @@ def _check_dict(image_spacing:dict, image_resizing:dict, image_text_config:dict,
     __checker.assert_dict_types(
         dict_name="image_spacing",
         dict_to_check=image_spacing,
-        names=["row_spacing", "col_spacing", "col_sep_line", "row_sep_line", "sep_line_color"],
+        names=["col_spacing", "row_spacing", "col_sep_line", "row_sep_line", "sep_line_color"],
         types=[int, int, int, int, tuple],
         must_be_present=[1, 1, 1, 1, 1],
         allow_nones=[0, 0, 0, 0, 0],
@@ -220,15 +220,15 @@ def _check_dict(image_spacing:dict, image_resizing:dict, image_text_config:dict,
         assert_dict_lte=True
     )
 
-    # `row_spacing`, `col_spacing`
-    __checker.assert_eval(image_spacing["row_spacing"], "0<=x", False, "row_spacing")
+    # `col_spacing`, `row_spacing`
     __checker.assert_eval(image_spacing["col_spacing"], "0<=x", False, "col_spacing")
+    __checker.assert_eval(image_spacing["row_spacing"], "0<=x", False, "row_spacing")
 
     # `col_sep_line`, `row_sep_line`
     if image_spacing["col_sep_line"]:
-        assert image_spacing["col_sep_line"] < (image_spacing["col_spacing"] + 2)
+        assert image_spacing["col_sep_line"] < (image_spacing["row_spacing"] + 2)
     if image_spacing["row_sep_line"]:
-        assert image_spacing["row_sep_line"] < (image_spacing["row_spacing"] + 2)
+        assert image_spacing["row_sep_line"] < (image_spacing["col_spacing"] + 2)
 
     # `canvas_background_color`, `sep_line_color`
     if image_spacing["sep_line_color"]:
@@ -408,7 +408,7 @@ def show_grid_configurable(
         resize_factor: float = 1.0,
         BGR2RGB: bool = False,
         parse_image: bool = True,
-        c_image_spacing:      Optional[Dict] = {"row_spacing":40, "col_spacing":30, "col_sep_line":1, "row_sep_line":1, "sep_line_color":(175, 175, 175, 0.3)},
+        c_image_spacing:      Optional[Dict] = {"col_spacing":40, "row_spacing":30, "col_sep_line":1, "row_sep_line":1, "sep_line_color":(175, 175, 175, 0.3)},
         c_image_area_margins: Optional[Dict] = {"left": 40, "right":40, "top":40, "bottom":40},
         c_image_resizing:     Optional[Dict] = {"max_width":800, "max_height":500, "min_width":0, "min_height":0, "interpolation":cv2.INTER_CUBIC},
         c_image_text_config:  Optional[Dict] = {"placement": "title_middle", "font_size": 15, "font_thickness": 3, "italic": False, "color": (75, 75, 75), "adjust_draw_distance":None},
@@ -536,7 +536,7 @@ def show_grid_configurable(
         c_image_area_margins = {"left": 0, "right": 0, "top": 0, "bottom": 0}
 
     # All spacing will be set to zero if None
-    default_image_spacing = {"row_spacing": 0, "col_spacing": 0, "col_sep_line": 0, "row_sep_line": 0, "sep_line_color": (0, 0, 0, 1.0)}
+    default_image_spacing = {"col_spacing": 0, "row_spacing": 0, "col_sep_line": 0, "row_sep_line": 0, "sep_line_color": (0, 0, 0, 1.0)}
     if c_image_spacing is None:
         c_image_spacing = default_image_spacing
 
@@ -561,15 +561,15 @@ def show_grid_configurable(
 
     __checker.assert_color(canvas_background_color, "RGB", "canvas_background_color")
 
-    if display_image == return_image == False:
-        raise ValueError("If you don't return the image and you do not show it. Why call this function?")
+    if not any([display_image, return_image, save_image_path]):
+        raise ValueError("If you don't want to display, return or save the image. What's the point :)")
 
     # Dict checks (this is primarily type checks, but also some value checks)
     _check_dict(c_image_spacing, c_image_resizing, c_image_text_config, c_col_text_config, c_row_text_config, c_image_area_margins, c_image_border, c_drop_down_shadow)
 
     # These variables are littered all over the place, so I don't want to have to access them through a dict everytime
-    row_spacing = c_image_spacing["row_spacing"]
     col_spacing = c_image_spacing["col_spacing"]
+    row_spacing = c_image_spacing["row_spacing"]
     col_sep_line = c_image_spacing["col_sep_line"]
     row_sep_line = c_image_spacing["row_sep_line"]
     sep_line_color = c_image_spacing["sep_line_color"]
@@ -582,7 +582,7 @@ def show_grid_configurable(
     if image_text is not None:
         assert len(image_text) == len(images), f"Mismatch between the number of images `{len(images)=}` and the number of image texts `{len(image_text)=}`\n" \
                                                f"Provide a matching number or set `image_text=None`"
-        if not all(len(t.splitlines()) == 1 for t in image_text):
+        if not all(len(t.splitlines()) <= 1 for t in image_text):
             msg = "Multiline strings are not supported because they cause all sorts of issues with the image layout." \
                   "\nChange the following entries in `image_text` to resolve the issue:\n"
             msg += ".\n".join([repr(t) for t in image_text if (len(t.splitlines()) != 1)])
@@ -633,9 +633,9 @@ def show_grid_configurable(
 
     # Grid and canvas
     coordinates, max_width_per_col, max_height_per_row = _get_grid_dimensions(images, rows, cols)
-    canvas, extra_height_col_text, extra_width_row_text = _get_canvas(dummy_draw, row_text, col_text, row_font, col_font, max_height_per_row, rows, col_spacing, text_adjusted_font_size, max_width_per_col, cols, row_spacing, canvas_background_color, c_image_area_margins)
+    canvas, extra_height_col_text, extra_width_row_text = _get_canvas(dummy_draw, row_text, col_text, row_font, col_font, max_height_per_row, rows, row_spacing, text_adjusted_font_size, max_width_per_col, cols, col_spacing, canvas_background_color, c_image_area_margins)
     image_area_offset_x, image_area_offset_y = extra_width_row_text + c_image_area_margins["left"], extra_height_col_text + c_image_area_margins["top"]
-    cell_data = _get_cell_data(images, image_text, image_area_offset_x, image_area_offset_y, coordinates, dummy_draw, text_font, row_spacing, max_width_per_col, col_spacing, text_adjusted_font_size, max_height_per_row)
+    cell_data = _get_cell_data(images, image_text, image_area_offset_x, image_area_offset_y, coordinates, dummy_draw, text_font, col_spacing, max_width_per_col, row_spacing, text_adjusted_font_size, max_height_per_row)
 
     # --------------------------------------------------------------------
     # Draw image area
@@ -651,7 +651,7 @@ def show_grid_configurable(
 
     # Draw separation lines between images
     if sep_line_color and (sep_line_color[3] < 1.0) and ((col_sep_line > 0) or (row_sep_line > 0)):
-        canvas = _draw_separation_lines(canvas, sep_line_color, image_area_offset_y, rows, col_spacing, text_adjusted_font_size, max_height_per_row, image_area_offset_x, cols, row_spacing, max_width_per_col, cell_data, col_sep_line, row_sep_line)
+        canvas = _draw_separation_lines(canvas, sep_line_color, image_area_offset_y, rows, row_spacing, text_adjusted_font_size, max_height_per_row, image_area_offset_x, cols, col_spacing, max_width_per_col, cell_data, col_sep_line, row_sep_line)
 
     # Draw the content of each cell
     for cell in cell_data:
@@ -920,7 +920,7 @@ def show_grid(
     if plot_settings == "shape_size":
         final = show_grid_configurable(**shared_settings, c_image_spacing=None, c_image_area_margins=None, c_image_resizing=None)
     elif plot_settings in ["width_shared", "height_shared"]:
-        image_spacing = {"row_spacing":5, "col_spacing":5, "col_sep_line":1, "row_sep_line":1, "sep_line_color":(175, 175, 175, 0.3)}
+        image_spacing = {"col_spacing":5, "row_spacing":5, "col_sep_line":1, "row_sep_line":1, "sep_line_color":(175, 175, 175, 0.3)}
         final = show_grid_configurable(**shared_settings, c_image_spacing=image_spacing, c_image_area_margins=None, c_image_resizing=None, c_image_border=None)
     elif plot_settings == "brute_force":
         final = show_grid_configurable(**shared_settings)
