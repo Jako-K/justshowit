@@ -57,15 +57,26 @@ class Config:
     # --------------------------------------------
 
     # Check if python is currently running in a jupyter environment. NOTE: This code is somewhat dubious, but I have tested it to the best of my abilities.
-    IN_JUPYTER = False
+    # IN_JUPYTER = False
+    # try:
+    #     shell = get_ipython().__class__.__name__  # This is supposed to be an unresolved reference anywhere outside jupyter
+    #     if shell == 'ZMQInteractiveShell':
+    #         IN_JUPYTER = True  # Jupyter notebook or qtconsole
+    #     elif shell == 'TerminalInteractiveShell':
+    #         IN_JUPYTER = False  # Terminal running IPython (the check is unnecessary, but left it for future reference)
+    # except NameError:
+    #     # Probably standard Python interpreter
+    #     pass
+
     try:
-        shell = get_ipython().__class__.__name__  # This is supposed to be an unresolved reference anywhere outside jupyter
+        shell = get_ipython().__class__.__name__
         if shell == 'ZMQInteractiveShell':
             IN_JUPYTER = True  # Jupyter notebook or qtconsole
         elif shell == 'TerminalInteractiveShell':
             IN_JUPYTER = False  # Terminal running IPython (the check is unnecessary, but left it for future reference)
+        elif ('IPythonKernel' in shell) or ('ipykernel' in shell):
+            IN_JUPYTER = True  # This might catch VSCode's Jupyter notebooks
     except NameError:
-        # Probably standard Python interpreter
         pass
 
     # --------------------------------------------
